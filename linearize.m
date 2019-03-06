@@ -33,8 +33,8 @@ function [linesOut] = linearize(sx,sy,cx,cy,ex,ey,cw,f)
     
     %Interpolate around arc with G1
     %prints to cell array linesOut
-    linesOut = '';
-    for step = 1:(segs+1)
+    linesOut = {};
+    for step = 1:segs
         %portion of the arc it's at
         scale = (step)/(segs);
         %angle at this portion of the arc
@@ -42,8 +42,10 @@ function [linesOut] = linearize(sx,sy,cx,cy,ex,ey,cw,f)
         %distance from center accounting for error in start/end points
         r = (dr*scale) + sr;
         %gets new endpoint for linear movement
-        nx = cx + (r*cos(a));
-        ny = cy + (r*sin(a));
-        linesOut(step,1) = {sprintf('G1 X%d Y%d F%d', nx,ny,f)};
+        nx = cx + (r*cos(a))
+        nx = round(nx*1000)/1000
+        ny = cy + (r*sin(a))
+        ny = round(ny*1000)/1000
+        linesOut(step,1) = {sprintf('G1 X%f Y%f F%f', nx,ny,f)}
     end
 end
