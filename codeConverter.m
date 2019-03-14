@@ -39,10 +39,12 @@ while ischar(line)
     j = [];
     %         r = [];
     
+    %detects if valid gcode commands are input
     if ~(cmd(1)=='G') && ~(cmd(1)=='M')
         error = error + 1;
         out{error,1} = sprintf('NOTICE Line %d: INVALID G-code command',lineNum);
-        
+    
+    %Use this elseif statement when not working with arcs
     elseif ~strcmp(cmd,'G2') && ~strcmp(cmd,'G3') && ~strcmp(cmd,'G02') && ~strcmp(cmd,'G03')
         fprintf(fh1,'%s\n',line);
         
@@ -71,6 +73,10 @@ while ischar(line)
                     ifF = true;
                 case 'S'
                     ifS = true;
+                case 'G'  
+                    error = error + 1;
+                    out{error,1} = sprintf('Line %d: Multiple G-codes found per line',lineNum);
+                    break
             end
             [code, read] = strtok(read);
         end
@@ -134,7 +140,7 @@ while ischar(line)
             case 'G03'
                 cw = false;
         end
-        %This tests if linearize it with a point with radius or centerpoint
+        %This tests if all necessary inputs are received
         if ~isempty(i) && ~isempty(j) && all([ifX,ifY,ifF])
             [linesCA,err] = linearize(x,y,i,j,ex,ey,cw,f);
             

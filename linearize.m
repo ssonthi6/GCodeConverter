@@ -36,7 +36,7 @@ end
     
     % get size of each segment
     % edit precision of the arc here
-    segs = max([ceil(len/50),1]);
+    segs = max([ceil(len/1.5),1]);
     
     %this variable will become a true if machine moves out of bounds
     bounds = 0;
