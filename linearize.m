@@ -1,4 +1,6 @@
-function [linesOut] = linearize(sx,sy,cx,cy,ex,ey,cw,f)
+function [linesOut, err] = linearize(sx,sy,cx,cy,ex,ey,cw,f)
+% Initialize error detector
+err = false;
 % Get start radius
     dx = sx - cx;
     dy = sy - cy;
@@ -10,6 +12,11 @@ function [linesOut] = linearize(sx,sy,cx,cy,ex,ey,cw,f)
     dy = ey - cy;
     ang2 = atan3(dy,dx);
     er = sqrt((dx)^2 + (dy)^2);
+%Compare start and end radius with 1mm tolerance
+diff = round(abs(sr - er));
+if diff > 1
+    err = err + 2;
+end
 % Find angle of arc (sweep)
     sweep = ang2 - ang1;
     if (~cw && sweep < 0) 
@@ -29,8 +36,10 @@ function [linesOut] = linearize(sx,sy,cx,cy,ex,ey,cw,f)
     
     % get size of each segment
     % edit precision of the arc here
-    segs = max([ceil(len/10),1]);
+    segs = max([ceil(len/50),1]);
     
+    %this variable will become a true if machine moves out of bounds
+    bounds = 0;
     %Interpolate around arc with G1
     %prints to cell array linesOut
     linesOut = {};
@@ -42,10 +51,18 @@ function [linesOut] = linearize(sx,sy,cx,cy,ex,ey,cw,f)
         %distance from center accounting for error in start/end points
         r = (dr*scale) + sr;
         %gets new endpoint for linear movement
-        nx = cx + (r*cos(a))
-        nx = round(nx*1000)/1000
-        ny = cy + (r*sin(a))
-        ny = round(ny*1000)/1000
-        linesOut(step,1) = {sprintf('G1 X%f Y%f F%f', nx,ny,f)}
+        nx = cx + (r*cos(a));
+        nx = round(nx*1000)/1000;
+        ny = cy + (r*sin(a));
+        ny = round(ny*1000)/1000;
+        linesOut(step,1) = {sprintf('G1 X%f Y%f F%f', nx,ny,f)};
+        %If machine goes out of bounds, bounds becomes true
+        if (nx < 0)||(nx > 1000)
+            bounds = true;
+        elseif (ny < 0)||(ny > 1000)
+            bounds = true;
+        end
     end
+    %Update error code
+    err = err + bounds;
 end
