@@ -22,7 +22,7 @@ end
     if (~cw && sweep < 0) 
         ang2 = ang2 + 2*pi;
     elseif (cw && sweep > 0) 
-        ang1 = ang1 + 2*PI;
+        ang1 = ang1 + 2*pi;
     end
     sweep = ang2 - ang1;
     dr = er - sr;
@@ -36,7 +36,7 @@ end
     
     % get size of each segment
     % edit precision of the arc here
-    segs = max([ceil(len/1.5),1]);
+    segs = max([ceil(len/2.5),1]);
     
     %this variable will become a true if machine moves out of bounds
     bounds = 0;

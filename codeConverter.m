@@ -24,7 +24,7 @@ out = {};
 lineNum = 0;
 
 %Puts header on gcode
-fprintf(fh1,'G21\n');
+fprintf(fh1,'G21\nG0X0Y0Z0\n');
 
 %Loop through each line in the code to figure out what to do with it
 while ischar(line)
@@ -83,11 +83,17 @@ while ischar(line)
         
         %test if the command has all of its correct parameters and add
         %error message if conditions are not met
-        if strcmp(cmd,'G0') || strcmp(cmd,'G00') || strcmp(cmd,'G1') || strcmp(cmd,'G01')
-            if ~any([ifX,ifY,ifZ,ifF])
+        if strcmp(cmd,'G0') || strcmp(cmd,'G00')
+            if ~any([ifX,ifY,ifZ])
                 error = error + 1;
                 out{error,1} = sprintf('Line %d: Not enough command inputs',lineNum);
             end
+        elseif strcmp(cmd,'G1') || strcmp(cmd,'G01')
+            if ~ifF || ~any([ifX,ifY,ifZ])
+                error = error + 1;
+                out{error,1} = sprintf('Line %d: Not enough command inputs',lineNum);
+            end
+            
         elseif strcmp(cmd,'G4') || strcmp(cmd,'G04')
             if ifS == false
                 error = error + 1;
@@ -207,7 +213,7 @@ while ischar(line)
 end
 
 %print end code line
-fprintf(fh1,'M30');
+fprintf(fh1,'G0X0Y0Z0\nM30');
 x
 y
 %print errors
